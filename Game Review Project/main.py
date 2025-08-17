@@ -28,10 +28,13 @@ def add_review():
     #Loop for Game title
     while True:
         title = input("Game Title: ").strip()
-        if title:
-            break
-        else:
+        if not title:
             print("Title can't be empty. Please try again.")
+        elif title in games:
+            print("Sorry. A review for this game already exists. Try editing or pick another title.")
+        else:
+            break
+            
     
     #Loop for Game Genre
     while True:
@@ -79,6 +82,45 @@ def add_review():
     
     print(f"Review for {title} is complete!\n")
 
+# THis function is used for displaying current reviews.
+def view_review():
+    print("\n=== View Game Reviews ===")
+    if not games:
+        print("No reviews found.\n")
+        return
+    
+    #The code below will ask the user if they want to filter.
+    filter_choice = input("You can filter by genre (g), platform (p), or view all (a)").strip().lower()
+    
+    filter_val = None
+    filter_key = None
+
+    if filter_choice == "g":
+        filter_val = input("Enter genre to filter by: ").strip().lower()
+        filter_key = "genre"
+    elif filter_choice == "p":
+        filter_val = input("Enter platform to filter by: ").strip().lower()
+        filter_key = "platform"
+
+    found = None #used to track if any displayed revies match the filter
+    for title, info in games.items():
+        show_review = True
+        if filter_key:
+            # Compare lower-case for more robust matching
+            if info[filter_key].lower() != filter_val:
+                show_review = False
+        if show_review:
+            found = True
+            print("-" * 40)
+            print(f"Title:     {title}")
+            print(f"Genre:     {info['genre']}")
+            print(f"Platform:  {info['platform']}")
+            print(f"Rating:    {info['rating']}/10")
+            print(f"Review:    {info['review']}")
+    if not found:
+        print("No reviews found for your filter.\n")
+    else:
+        print("-"*40 + "\n")
 
 # the main loop of code
 def main_loop():
@@ -89,7 +131,7 @@ def main_loop():
         if choice == "1":
             add_review()
         elif choice == "2":
-            print(f"{games}\n")
+            view_review()
         elif choice == "3":
             pass
         elif choice == "4":
