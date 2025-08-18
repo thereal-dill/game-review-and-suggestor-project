@@ -122,6 +122,46 @@ def view_review():
     else:
         print("-"*40 + "\n")
 
+def suggest_game():
+    print("\n=== Game Suggester ===")
+    
+    #checks if database is empty
+    if not games:
+        print("No games in database yet! Please add a review.")
+        return
+
+    # Ask the user for preferences; pressing enter skips filtering
+    genre_pref = input("What genre would you prefer? (Press enter to skip): ").strip().lower()
+    platform_pref = input("Preferred platform (Press enter to skip): ").strip().lower()
+
+    matches = []
+    for title, info in games.items():
+        genre_match = genre_pref in info['genre'].lower() if genre_pref else True
+        platform_match = platform_pref in info['platform'].lower() if platform_pref else True  # Fixed condition here
+
+        if genre_match and platform_match:
+            matches.append((title, info))
+
+    if not matches:
+        print("No games match your preferences. Try changing filters or adding more reviews.\n")
+        return
+
+    # Sort matches by rating (highest first)
+    matches.sort(key=lambda x: x[1]['rating'], reverse=True)
+
+    # Select the top result
+    best_title, best_info = matches[0]  
+
+    print("-" * 40)
+    print(f"Suggested Game: {best_title}")
+    print(f"Genre: {best_info['genre']}")
+    print(f"Platform: {best_info['platform']}")
+    print(f"Rating: {best_info['rating']}/10")
+    print(f"Review: {best_info['review']}")
+    print("-" * 40 + "\n")
+
+
+
 # the main loop of code
 def main_loop():
     while True:
@@ -133,7 +173,7 @@ def main_loop():
         elif choice == "2":
             view_review()
         elif choice == "3":
-            pass
+            suggest_game()
         elif choice == "4":
             break
         else:
