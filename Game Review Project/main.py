@@ -19,7 +19,8 @@ def main_menu():
     print("1. Add a new game review")
     print("2. Look at reviewed games")
     print("3. Get Video Game suggestions")
-    print("4. Quit")
+    print("4. Display statistics.")
+    print("5. Quit")
 
 # When people want to add a review, this function asks for data
 def add_review():
@@ -160,7 +161,29 @@ def suggest_game():
     print(f"Review: {best_info['review']}")
     print("-" * 40 + "\n")
 
+def show_statistics():
+    print("\n=== Game Review Statistics===")
+    if not games:
+        print("There's no games in the database yet.")
+        return
+    
+    #grabs the total number reviews and ratings, along with giving an average rating.
+    total_reviews = len(games)
+    total_rating = sum(info['rating'] for info in games.values())
+    average_rating = total_rating / total_reviews
 
+    print(f"Total number of reviews {total_reviews}")
+    print(f"Average rating of all games: {average_rating:.2f}/10")
+
+    # This'll give the average rating per genre
+    genres = {}
+    for info in games.values():
+        genre = info['genre']
+        genres.setdefault(genre, []).append(info['rating'])
+    print("\nAverage rating by genre:")
+    for genre, ratings in genres.items():
+        avg = sum(ratings) / len(ratings)
+        print(f" {genre}: {avg:.2f}/10")
 
 # the main loop of code
 def main_loop():
@@ -175,6 +198,8 @@ def main_loop():
         elif choice == "3":
             suggest_game()
         elif choice == "4":
+            show_statistics()
+        elif choice == "5":
             break
         else:
             print("\nDude, you're pretty dumb. Enter a number.\n")
