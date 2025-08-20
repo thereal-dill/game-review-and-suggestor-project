@@ -1,18 +1,7 @@
+import json
+
 # initial data structure
-games = {
-    "Halo": {
-        "genre": "FPS",
-        "platform": "Xbox",
-        "rating": 9,
-        "review": "Great multiplayer!"
-    },
-    "Stardew Valley": {
-        "genre": "RPG",
-        "platform": "PC",
-        "rating": 8,
-        "review": "Relaxing farming sim."
-    }
-}
+games = {}
 
 # This is the menu function. Pretty Simple.
 def main_menu():
@@ -55,9 +44,10 @@ def add_review():
 
     #Loop for Rating
     while True:
-        rating = input("Rating (1-10): ").strip()
-        if rating and rating.isdigit(): 
-            if (int(rating) <= 10 and int(rating) >= 1):
+        rating_input = (input("Rating (1-10): ").strip())
+        if rating_input.isdigit():
+            rating = int(rating_input) 
+            if (1 <= rating <= 10):
                 break
         else:
             print("Please enter a valid rating (cannot be empty, greater than 10, less than 1, or words).")
@@ -103,7 +93,7 @@ def view_review():
         filter_val = input("Enter platform to filter by: ").strip().lower()
         filter_key = "platform"
 
-    found = None #used to track if any displayed revies match the filter
+    found = False #used to track if any displayed revies match the filter
     for title, info in games.items():
         show_review = True
         if filter_key:
@@ -123,6 +113,7 @@ def view_review():
     else:
         print("-"*40 + "\n")
 
+# This function will attempt to suggest games based off of current reviews.
 def suggest_game():
     print("\n=== Game Suggester ===")
     
@@ -161,6 +152,7 @@ def suggest_game():
     print(f"Review: {best_info['review']}")
     print("-" * 40 + "\n")
 
+# This function will display the statistics of the current reviews.
 def show_statistics():
     print("\n=== Game Review Statistics===")
     if not games:
@@ -169,7 +161,7 @@ def show_statistics():
     
     #grabs the total number reviews and ratings, along with giving an average rating.
     total_reviews = len(games)
-    total_rating = sum(info['rating'] for info in games.values())
+    total_rating = sum(int(info['rating']) for info in games.values())
     average_rating = total_rating / total_reviews
 
     print(f"Total number of reviews {total_reviews}")
@@ -185,14 +177,41 @@ def show_statistics():
         avg = sum(ratings) / len(ratings)
         print(f" {genre}: {avg:.2f}/10")
 
+# Saves the reviews to a JSON file if it exists
+def save_reviews(filename="reviews.json"):
+    try:
+        with open(filename, "w") as f:
+            json.dump(games, f, indent=4)
+        print(f"Reviews saved to {filename}")
+    except Exception as e:
+        print(f"Error savings reviews: {e}")
+
+# Loads the games/reviews from a JSON file if it exits.
+def load_reviews(filename="reviews.json"):
+    global games
+    try:
+        with open(filename, 'r') as f:
+            games = json.load(f)
+        print(f"Reviews loaded from {filename}")
+    except FileNotFoundError:
+        print(f"No saved reviews found. Starting with an empty database.")
+        games = {}
+    except Exception as e:
+        print(f"Error loading reviews: {e}")
+        games = {}
+
 # the main loop of code
 def main_loop():
+    
+    load_reviews()
     while True:
+        
         main_menu()
         choice = input("Hey, what do you want to do?: \n")
 
         if choice == "1":
             add_review()
+            save_reviews()
         elif choice == "2":
             view_review()
         elif choice == "3":
@@ -200,6 +219,8 @@ def main_loop():
         elif choice == "4":
             show_statistics()
         elif choice == "5":
+            save_reviews()
+            print("Adios amigo!")
             break
         else:
             print("\nDude, you're pretty dumb. Enter a number.\n")
